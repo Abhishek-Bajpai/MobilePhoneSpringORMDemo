@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<!-- Create a DATA SOURCE bean~ This is like hibernate.cfg.xml entries -->
+	<bean id="ds"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName"
+			value="oracle.jdbc.driver.OracleDriver"></property>
+		<property name="url"
+			value="jdbc:oracle:thin:@localhost:1521:XE">
+		</property>
+		<property name="username" value="bankone"></property>
+		<property name="password" value="Welcome1"></property>
+	</bean>
+
+	<!-- Create a SessionFactory bean for Spring to manage mappings between 
+		provided datasource and created DTO beans -->
+	<bean id="mySessionFactory"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="ds"></property>  <!-- Inject DataSource to the factory using setter/property -->
+		<property name="annotatedClasses"> <!-- Provide all the classes which are annotated as Entity ..ToDO:?? -->
+			<list>
+<!-- 				<value>bajpai.edu.bank.dto.Customer</value>
+				<value>bajpai.edu.bank.dto.Account</value>
+				<value>bajpai.edu.bank.dto.Transaction</value> -->
+				<value>bajpai.edu.module11.assignment.dto.MobilePhone</value>
+
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect"> org.hibernate.dialect.Oracle10gDialect</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+				<prop key="show_sql">true</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- Create a HibernateTemplate type bean and provide SessionFactory as 
+		its property, SessionFactory bean was created above -->
+	<bean id="template"
+		class="org.springframework.orm.hibernate5.HibernateTemplate">
+		<property name="sessionFactory" ref="mySessionFactory"></property>
+	</bean>
+
+	<!-- Create a DAOImpl bean for DB operations and inject template -->
+	<!-- bean id="operations" class="bajpai.edu.bank.dao.BankOperations">
+		<property name="template" ref="template"></property>
+	</bean -->
+
+	<bean id="operations" class="bajpai.edu.module11.assignment.dao.MobilePhoneDAO">
+		<property name="template" ref="template"></property>
+	</bean>
+	
+	
+	<tx:annotation-driven
+		transaction-manager="transactionManager" /> <!-- Declare transaction manager here.. which is annotation driven -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="mySessionFactory"></property> <!-- Inject your session factory to this transaction manager bean -->
+	</bean>
+
+</beans>
